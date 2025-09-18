@@ -1,0 +1,64 @@
+// C++ code
+//
+#include<Servo.h>
+#include<LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x20, 16, 2);
+Servo s1;
+Servo s2;
+int trig = 13;
+int echo = 12;
+int sig1 = 11;
+int sig2 = 10;
+int pot = A0;
+void setup()  
+{
+  lcd.begin(16,2);
+  lcd.init();
+  lcd.backlight();
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  s1.attach(11);
+  s2.attach(10);
+  Serial.begin(9600);
+}
+int distance(){
+  digitalWrite(trig, LOW);
+  delay(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  int duration = pulseIn(echo, HIGH);
+  int distance = duration * 0.0343 / 2;
+  //Serial.println(distance);
+  return distance;
+}
+void loop()
+{
+  lcd.clear();
+  int sensor = analogRead(pot);
+  int angle1 = map(sensor, 0, 1023, 0, 180);
+  Serial.print("angle1: ");
+  Serial.println(angle1);
+  lcd.setCursor(0,0);
+  lcd.print("Angle1: ");
+  lcd.print(angle1);
+  s1.write(0);
+  for(int i = 0; i <= angle1; i++){
+    s1.write(i);    
+    delay(10);
+  }
+  int d = distance();
+  int angle2 = map(d, 35, 400, 0, 180);
+  Serial.print("angle2: ");
+  Serial.println(angle2);
+  lcd.setCursor(1,0);
+  lcd.print("Angle 2: ");
+  lcd.print(angle2);
+            
+  s2.write(180);
+  for(int k = 0; k <= angle2; k++){
+    s2.write(k);
+    delay(10);
+  }
+  
+}
